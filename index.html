@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniPost Studio | Multi-Platform Social Content Engine & Queue</title>
+  <meta name="description" content="Proprietary social media automation platform, multi-channel post scheduler, and auto-dispatch engine for Kinetic Media Group Inc.">
+  <meta property="og:title" content="OmniPost Studio | Enterprise Social Content Engine">
+  <meta property="og:description" content="Centralized multi-channel publishing scheduler across Reddit, X (Twitter), Telegram, and LinkedIn with Spintax anti-ban permutations.">
+  <meta property="og:type" content="website">
+
+  <!-- Google Fonts: Outfit (Headings) + Inter (Body) + JetBrains Mono (Data/Code) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS & Chart.js CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Inter"', 'sans-serif'],
+            heading: ['"Outfit"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            amberBrand: {
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+            },
+            obsidian: {
+              950: '#08090d',
+              900: '#0d0f17',
+              850: '#121520',
+              800: '#1a1e2e',
+              750: '#23293d',
+              700: '#2f3752',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #08090d;
+      color: #f1f5f9;
+      font-family: 'Inter', sans-serif;
+    }
+    h1, h2, h3, h4, .font-heading {
+      font-family: 'Outfit', sans-serif;
+    }
+    .amber-card {
+      background: linear-gradient(180deg, rgba(18, 21, 32, 0.85) 0%, rgba(13, 15, 23, 0.95) 100%);
+      border: 1px solid rgba(249, 115, 22, 0.16);
+      backdrop-filter: blur(14px);
+    }
+    .amber-card:hover {
+      border-color: rgba(251, 146, 60, 0.35);
+    }
+    .glow-amber {
+      box-shadow: 0 0 35px -10px rgba(249, 115, 22, 0.22);
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0d0f17;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #23293d;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-orange-500/30 selection:text-orange-200">
+
+  <!-- TOP APP BAR -->
+  <header class="sticky top-0 z-40 border-b border-orange-500/15 bg-obsidian-950/90 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      
+      <!-- Brand & Organization Context -->
+      <div class="flex flex-col justify-center">
+        <div class="flex items-center gap-2.5">
+          <span class="font-extrabold text-white tracking-tight text-xl font-heading">OMNIPOST<span class="text-orange-500 font-black">STUDIO</span></span>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20 font-semibold uppercase tracking-wider">Social Engine</span>
+        </div>
+        <div class="text-[11px] text-zinc-400">Kinetic Media Group Inc. • Cluster: <span class="font-mono text-orange-400 font-semibold">#OMNI-PUB-418</span></div>
+      </div>
+
+      <!-- Live Daemon Status & Minimal Avatar -->
+      <div class="flex items-center gap-3">
+        
+        <!-- Auto-Scheduler Cron Status -->
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-obsidian-900 border border-orange-500/20 text-xs font-mono text-zinc-300">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Cron Daemon: <strong class="text-emerald-400">Active (1m sync)</strong></span>
+        </div>
+
+        <!-- API Rate Limits Status -->
+        <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-950/40 border border-orange-500/25 text-xs font-mono text-orange-300">
+          <span>Rate Limits: <strong class="text-white font-semibold">Healthy (100%)</strong></span>
+        </div>
+
+        <!-- Minimal Profile Avatar Icon (No Developer Names) -->
+        <div class="pl-2 border-l border-obsidian-800 flex items-center">
+          <button class="w-8 h-8 rounded-full bg-obsidian-800 border border-orange-500/30 hover:border-orange-400 flex items-center justify-center text-orange-400 hover:text-white transition-colors" title="Operations Admin Account">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </header>
+
+  <!-- DASHBOARD WRAPPER -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 space-y-8">
+
+    <!-- KPI STATS CARDS (WARM AMBER / SUNSET ACCENTS) -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      
+      <!-- KPI 1 -->
+      <div class="amber-card rounded-2xl p-5 relative overflow-hidden">
+        <div class="flex items-center justify-between text-xs font-mono text-zinc-400 mb-2">
+          <span>Active Queue Depth</span>
+          <span class="text-orange-400 bg-orange-950/60 border border-orange-500/20 px-2 py-0.5 rounded text-[10px] font-semibold">+6 Today</span>
+        </div>
+        <div class="text-3xl font-mono font-bold text-white tracking-tight" id="activeQueueCount">48</div>
+        <div class="text-[11px] text-zinc-400 mt-2 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-orange-400"></span>
+          <span>Next dispatch in: <strong class="text-zinc-200 font-mono">14m 20s</strong></span>
+        </div>
+      </div>
+
+      <!-- KPI 2 -->
+      <div class="amber-card rounded-2xl p-5 relative overflow-hidden">
+        <div class="flex items-center justify-between text-xs font-mono text-zinc-400 mb-2">
+          <span>Published (7 Days)</span>
+          <span class="text-emerald-400 bg-emerald-950/50 border border-emerald-500/20 px-2 py-0.5 rounded text-[10px]">100% Success</span>
+        </div>
+        <div class="text-3xl font-mono font-bold text-white tracking-tight">164 <span class="text-xs font-normal text-zinc-400 font-sans">broadcasts</span></div>
+        <div class="text-[11px] text-zinc-400 mt-2 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          <span>Reddit (42) • X (74) • TG (38) • In (10)</span>
+        </div>
+      </div>
+
+      <!-- KPI 3 -->
+      <div class="amber-card rounded-2xl p-5 relative overflow-hidden">
+        <div class="flex items-center justify-between text-xs font-mono text-zinc-400 mb-2">
+          <span>Aggregated Impressions</span>
+          <span class="text-orange-400 bg-orange-950/60 border border-orange-500/20 px-2 py-0.5 rounded text-[10px]">+28.4%</span>
+        </div>
+        <div class="text-3xl font-mono font-bold text-orange-400 tracking-tight">384.9K</div>
+        <div class="text-[11px] text-zinc-400 mt-2 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-orange-400"></span>
+          <span>Avg. Engagement Rate: <strong class="text-zinc-200">4.82%</strong></span>
+        </div>
+      </div>
+
+      <!-- KPI 4 -->
+      <div class="amber-card rounded-2xl p-5 relative overflow-hidden">
+        <div class="flex items-center justify-between text-xs font-mono text-zinc-400 mb-2">
+          <span>Spintax Variation Pool</span>
+          <span class="text-amber-300 bg-amber-950/50 border border-amber-500/20 px-2 py-0.5 rounded text-[10px]">Anti-Shadowban</span>
+        </div>
+        <div class="text-3xl font-mono font-bold text-white tracking-tight">1,240 <span class="text-xs font-normal text-zinc-400 font-sans">permutations</span></div>
+        <div class="text-[11px] text-zinc-400 mt-2 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+          <span>0 account restrictions detected</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- MAIN TWO-COLUMN SECTION: POST COMPOSER & LIVE SCHEDULING QUEUE -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+      <!-- LEFT: INTERACTIVE POST COMPOSER (5 COLS) -->
+      <div class="lg:col-span-5 space-y-6">
+        
+        <div class="amber-card rounded-2xl p-6 glow-amber">
+          <div class="flex items-center justify-between mb-5">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+              <h2 class="font-heading font-bold text-lg text-white">Interactive Post Composer</h2>
+            </div>
+            <span class="text-[11px] font-mono text-orange-400 bg-orange-950/50 border border-orange-500/20 px-2 py-0.5 rounded">Multi-Channel</span>
+          </div>
+
+          <form id="composerForm" class="space-y-4">
+            
+            <!-- Target Platform Selector -->
+            <div>
+              <label class="block text-xs font-mono text-zinc-400 mb-1.5 uppercase tracking-wider">Target Ecosystem</label>
+              <div class="grid grid-cols-4 gap-2" id="platformSelector">
+                <button type="button" data-platform="reddit" class="platform-btn active py-2 rounded-lg bg-orange-500/20 border border-orange-500 text-orange-300 text-xs font-semibold flex flex-col items-center gap-1 transition-colors">
+                  <span>r/ Reddit</span>
+                  <span class="text-[9px] font-mono text-zinc-400">Subreddit</span>
+                </button>
+                <button type="button" data-platform="twitter" class="platform-btn py-2 rounded-lg bg-obsidian-900 border border-obsidian-800 hover:border-zinc-700 text-zinc-400 text-xs font-semibold flex flex-col items-center gap-1 transition-colors">
+                  <span>X / Twitter</span>
+                  <span class="text-[9px] font-mono text-zinc-500">Thread/Post</span>
+                </button>
+                <button type="button" data-platform="telegram" class="platform-btn py-2 rounded-lg bg-obsidian-900 border border-obsidian-800 hover:border-zinc-700 text-zinc-400 text-xs font-semibold flex flex-col items-center gap-1 transition-colors">
+                  <span>Telegram</span>
+                  <span class="text-[9px] font-mono text-zinc-500">Channel</span>
+                </button>
+                <button type="button" data-platform="linkedin" class="platform-btn py-2 rounded-lg bg-obsidian-900 border border-obsidian-800 hover:border-zinc-700 text-zinc-400 text-xs font-semibold flex flex-col items-center gap-1 transition-colors">
+                  <span>LinkedIn</span>
+                  <span class="text-[9px] font-mono text-zinc-500">Page</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Destination Subreddit / Channel Name -->
+            <div>
+              <label class="block text-xs font-mono text-zinc-400 mb-1.5 uppercase tracking-wider" id="targetLabel">Destination Subreddit / Target</label>
+              <input type="text" id="targetInput" value="r/startups" required class="w-full bg-obsidian-900 border border-orange-500/25 focus:border-orange-500 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-orange-500 font-mono transition-colors">
+            </div>
+
+            <!-- Post Title (For Reddit / Articles) -->
+            <div id="titleContainer">
+              <label class="block text-xs font-mono text-zinc-400 mb-1.5 uppercase tracking-wider">Post Headline / Title</label>
+              <input type="text" id="postTitleInput" value="How we automated e-commerce price matching using async scrapers and saved 15 hrs/week" required class="w-full bg-obsidian-900 border border-orange-500/25 focus:border-orange-500 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-orange-500 transition-colors">
+            </div>
+
+            <!-- Post Content Body with Spintax notation -->
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="text-xs font-mono text-zinc-400 uppercase tracking-wider">Content Body (Markdown & Spintax supported)</label>
+                <span class="text-[10px] font-mono text-zinc-500" id="charCount">285 chars</span>
+              </div>
+              <textarea id="postBodyInput" rows="4" required class="w-full bg-obsidian-900 border border-orange-500/25 focus:border-orange-500 rounded-xl p-3.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-orange-500 leading-relaxed font-sans transition-colors">{Excited to share|Quick breakdown}: We just deployed an automated pipeline orchestrating inventory synchronization across 4 retail partners. Response times dropped to 58ms with zero downtime. What is your go-to stack for high-volume worker queues?</textarea>
+            </div>
+
+            <!-- Schedule Dispatch Time -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-mono text-zinc-400 mb-1.5 uppercase tracking-wider">Schedule Time (UTC)</label>
+                <input type="time" id="scheduleTime" value="15:45" class="w-full bg-obsidian-900 border border-orange-500/25 focus:border-orange-500 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-mono text-zinc-400 mb-1.5 uppercase tracking-wider">Spintax Randomizer</label>
+                <select id="spintaxMode" class="w-full bg-obsidian-900 border border-orange-500/25 focus:border-orange-500 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none">
+                  <option value="enabled">Auto-Permute (Safe)</option>
+                  <option value="strict">Exact Text</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="addQueueBtn" class="w-full mt-3 py-3 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-heading font-semibold text-xs transition-all duration-200 shadow-lg shadow-orange-950/60 flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+              <span id="addBtnText">Add to Automated Queue</span>
+            </button>
+
+          </form>
+
+        </div>
+
+        <!-- LIVE PUBLISHER DAEMON LOG STREAM -->
+        <div class="amber-card rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <h3 class="font-heading font-semibold text-sm text-white">Auto-Poster Event Stream</h3>
+            </div>
+            <button id="clearStreamBtn" class="text-[10px] font-mono text-zinc-400 hover:text-white px-2 py-0.5 rounded bg-obsidian-800 border border-obsidian-750 transition-colors">Clear</button>
+          </div>
+          <div id="publisherLog" class="h-44 overflow-y-auto space-y-1.5 font-mono text-[11px] p-3 rounded-xl bg-obsidian-950 border border-orange-500/10 text-zinc-400">
+            <div><span class="text-zinc-600">14:20:02</span> <span class="text-orange-400">[CRON]</span> Daemon woke up, checking active queues...</div>
+            <div><span class="text-zinc-600">14:20:05</span> <span class="text-emerald-400">[REDDIT-API]</span> Auth token refreshed via OAuth2 (OAuth Client #KMG-02)</div>
+            <div><span class="text-zinc-600">14:22:18</span> <span class="text-sky-400">[TWITTER-V2]</span> Rate limit remaining: 284/300 requests</div>
+            <div><span class="text-zinc-600">14:25:00</span> <span class="text-emerald-400">[PUBLISHED]</span> Successfully posted to r/entrepreneur (Post ID: t3_1h9k8q)</div>
+            <div class="text-zinc-500 text-[10px]">● Awaiting scheduled triggers...</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: LIVE QUEUED POSTS & PERFORMANCE ANALYTICS (7 COLS) -->
+      <div class="lg:col-span-7 space-y-6">
+
+        <!-- QUEUE CONTROLS & FILTER -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <h2 class="font-heading font-bold text-xl text-white">Scheduled Publications Queue</h2>
+            <span class="px-2 py-0.5 rounded bg-orange-500/15 border border-orange-500/30 text-orange-400 text-xs font-mono font-semibold" id="queueBadge">4 Items Shown</span>
+          </div>
+
+          <!-- Filter Pills -->
+          <div class="flex items-center gap-1.5 p-1 bg-obsidian-900 border border-orange-500/20 rounded-xl text-xs font-mono">
+            <button class="filter-pill active px-3 py-1 rounded-lg bg-orange-500 text-white font-semibold transition-colors">All</button>
+            <button class="filter-pill px-3 py-1 rounded-lg text-zinc-400 hover:text-white transition-colors">Reddit</button>
+            <button class="filter-pill px-3 py-1 rounded-lg text-zinc-400 hover:text-white transition-colors">X / Twitter</button>
+            <button class="filter-pill px-3 py-1 rounded-lg text-zinc-400 hover:text-white transition-colors">Telegram</button>
+          </div>
+        </div>
+
+        <!-- POST QUEUE LIST -->
+        <div class="space-y-3.5" id="queueList">
+
+          <!-- Item 1: Reddit Post -->
+          <div class="amber-card rounded-2xl p-4.5 transition-all duration-200 hover:border-orange-500/40">
+            <div class="flex items-start justify-between gap-3 mb-2.5">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded bg-orange-500/20 border border-orange-500/30 text-orange-400 text-[11px] font-mono font-semibold">r/startups</span>
+                <span class="text-xs text-zinc-400 font-mono">• Target: Tech Founders</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] font-mono text-amber-300 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">Scheduled: Today 15:45 UTC</span>
+                <button class="text-zinc-500 hover:text-rose-400 text-xs transition-colors" title="Cancel Scheduled Post">✕</button>
+              </div>
+            </div>
+            <h4 class="font-heading font-semibold text-white text-sm mb-1">How we automated e-commerce price matching using async scrapers and saved 15 hrs/week</h4>
+            <p class="text-xs text-zinc-400 leading-relaxed font-sans line-clamp-2 mb-3">
+              We just deployed an automated pipeline orchestrating inventory synchronization across 4 retail partners. Response times dropped to 58ms with zero downtime...
+            </p>
+            <div class="flex items-center justify-between pt-2.5 border-t border-obsidian-800 text-[11px] font-mono text-zinc-400">
+              <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Spintax Permutations: 6 Active</span>
+              <span class="text-zinc-500">Auto-Retry on 429: Enabled</span>
+            </div>
+          </div>
+
+          <!-- Item 2: X / Twitter Thread -->
+          <div class="amber-card rounded-2xl p-4.5 transition-all duration-200 hover:border-orange-500/40">
+            <div class="flex items-start justify-between gap-3 mb-2.5">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded bg-sky-500/20 border border-sky-500/30 text-sky-400 text-[11px] font-mono font-semibold">X / @KineticGrowth</span>
+                <span class="text-xs text-zinc-400 font-mono">• Thread (3 Tweets)</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] font-mono text-zinc-300 bg-obsidian-800 border border-zinc-700 px-2 py-0.5 rounded">Scheduled: Today 18:00 UTC</span>
+                <button class="text-zinc-500 hover:text-rose-400 text-xs transition-colors" title="Cancel Scheduled Post">✕</button>
+              </div>
+            </div>
+            <h4 class="font-heading font-semibold text-white text-sm mb-1">3 Architecture Mistakes to Avoid When Building Multi-Bot Gateways</h4>
+            <p class="text-xs text-zinc-400 leading-relaxed font-sans line-clamp-2 mb-3">
+              1/ Don't handle webhook authentication synchronously in the primary event loop. Offload JWT and HMAC signatures to worker coroutines...
+            </p>
+            <div class="flex items-center justify-between pt-2.5 border-t border-obsidian-800 text-[11px] font-mono text-zinc-400">
+              <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span> Media Attachment: 1 Architecture Diagram (PNG)</span>
+              <span class="text-zinc-500">Shortlink Tracking: active</span>
+            </div>
+          </div>
+
+          <!-- Item 3: Telegram Broadcast -->
+          <div class="amber-card rounded-2xl p-4.5 transition-all duration-200 hover:border-orange-500/40">
+            <div class="flex items-start justify-between gap-3 mb-2.5">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[11px] font-mono font-semibold">Telegram Channel</span>
+                <span class="text-xs text-zinc-400 font-mono">• #MarketIntelligence</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] font-mono text-zinc-300 bg-obsidian-800 border border-zinc-700 px-2 py-0.5 rounded">Scheduled: Tomorrow 09:30 UTC</span>
+                <button class="text-zinc-500 hover:text-rose-400 text-xs transition-colors" title="Cancel Scheduled Post">✕</button>
+              </div>
+            </div>
+            <h4 class="font-heading font-semibold text-white text-sm mb-1">Weekly Market Sentiment & Scraper Anomaly Briefing #42</h4>
+            <p class="text-xs text-zinc-400 leading-relaxed font-sans line-clamp-2 mb-3">
+              Retail catalog price updates observed an 18% variance in hardware electronics this quarter. Key competitor discount margins narrowed...
+            </p>
+            <div class="flex items-center justify-between pt-2.5 border-t border-obsidian-800 text-[11px] font-mono text-zinc-400">
+              <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span> Rich Markdown + Inline Button URLs</span>
+              <span class="text-zinc-500">Subscribers: 4,890</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- PERFORMANCE ANALYTICS CHART -->
+        <div class="amber-card rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="font-heading font-bold text-white text-base">Weekly Multi-Channel Reach Velocity</h3>
+              <p class="text-xs text-zinc-400">Total verified reach & engagement impressions generated via automated queues</p>
+            </div>
+            <div class="flex items-center gap-2 text-xs font-mono">
+              <span class="flex items-center gap-1 text-orange-400"><span class="w-2 h-2 rounded-full bg-orange-500"></span> Reddit</span>
+              <span class="flex items-center gap-1 text-sky-400"><span class="w-2 h-2 rounded-full bg-sky-400"></span> X</span>
+              <span class="flex items-center gap-1 text-indigo-300"><span class="w-2 h-2 rounded-full bg-indigo-400"></span> Telegram</span>
+            </div>
+          </div>
+          <div class="h-56 w-full">
+            <canvas id="reachChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- RECENT PUBLISHED AUDIT TABLE -->
+    <section class="amber-card rounded-2xl p-6">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h3 class="font-heading font-bold text-white text-lg">Recent Autonomous Dispatches</h3>
+          <p class="text-xs text-zinc-400">Audit trail of posts verified and broadcasted by the scheduler cron engine</p>
+        </div>
+        <span class="text-xs font-mono text-orange-400 bg-orange-950/60 border border-orange-500/25 px-2.5 py-1 rounded-lg">Sync Status: Real-time</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs font-mono">
+          <thead>
+            <tr class="border-b border-obsidian-800 text-zinc-400 text-[11px]">
+              <th class="pb-3 font-semibold">TIMESTAMP</th>
+              <th class="pb-3 font-semibold">CHANNEL</th>
+              <th class="pb-3 font-semibold">HEADLINE / BODY SUMMARY</th>
+              <th class="pb-3 font-semibold">REACH</th>
+              <th class="pb-3 font-semibold">RESPONSE</th>
+              <th class="pb-3 font-semibold text-right">AUDIT ID</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-obsidian-800 text-zinc-300">
+            <tr class="hover:bg-obsidian-900/50 transition-colors">
+              <td class="py-3 text-zinc-500">Today 14:25 UTC</td>
+              <td class="py-3"><span class="text-orange-400 bg-orange-950/50 px-2 py-0.5 rounded border border-orange-500/20">r/entrepreneur</span></td>
+              <td class="py-3 text-white font-sans font-medium">Why building automated catalog scrapers saves SMBs hundreds of hours</td>
+              <td class="py-3 text-orange-400 font-bold">14,210 views</td>
+              <td class="py-3"><span class="text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded">HTTP 200 OK</span></td>
+              <td class="py-3 text-right text-zinc-500 font-mono">#KMG-DSP-8821</td>
+            </tr>
+            <tr class="hover:bg-obsidian-900/50 transition-colors">
+              <td class="py-3 text-zinc-500">Today 12:10 UTC</td>
+              <td class="py-3"><span class="text-sky-400 bg-sky-950/50 px-2 py-0.5 rounded border border-sky-500/20">X / Twitter</span></td>
+              <td class="py-3 text-white font-sans font-medium">5 Key indicators your web scrapers are hitting anti-bot challenges</td>
+              <td class="py-3 text-sky-400 font-bold">8,940 views</td>
+              <td class="py-3"><span class="text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded">HTTP 200 OK</span></td>
+              <td class="py-3 text-right text-zinc-500 font-mono">#KMG-DSP-8820</td>
+            </tr>
+            <tr class="hover:bg-obsidian-900/50 transition-colors">
+              <td class="py-3 text-zinc-500">Yesterday 18:30 UTC</td>
+              <td class="py-3"><span class="text-indigo-300 bg-indigo-950/50 px-2 py-0.5 rounded border border-indigo-500/20">Telegram VIP</span></td>
+              <td class="py-3 text-white font-sans font-medium">Daily Competitor Price Delta Summary & Flash Deals alert</td>
+              <td class="py-3 text-indigo-300 font-bold">3,420 reads</td>
+              <td class="py-3"><span class="text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded">HTTP 200 OK</span></td>
+              <td class="py-3 text-right text-zinc-500 font-mono">#KMG-DSP-8819</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- STRICT INTERNAL ENTERPRISE FOOTER -->
+  <footer class="border-t border-orange-500/15 bg-obsidian-950 py-6 text-center text-xs text-zinc-500 font-mono">
+    © 2026 Kinetic Media Group Inc. • Proprietary Multi-Channel Social Content Engine • Internal Confidential System
+  </footer>
+
+  <!-- SCRIPT LOGIC (CHARTS + FORM DISPATCH) -->
+  <script>
+    // Platform switching logic
+    const platformBtns = document.querySelectorAll('.platform-btn');
+    const targetLabel = document.getElementById('targetLabel');
+    const targetInput = document.getElementById('targetInput');
+    const titleContainer = document.getElementById('titleContainer');
+    let selectedPlatform = 'reddit';
+
+    platformBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        platformBtns.forEach(b => {
+          b.classList.remove('active', 'bg-orange-500/20', 'border-orange-500', 'text-orange-300');
+          b.classList.add('bg-obsidian-900', 'border-obsidian-800', 'text-zinc-400');
+        });
+        btn.classList.add('active', 'bg-orange-500/20', 'border-orange-500', 'text-orange-300');
+        btn.classList.remove('bg-obsidian-900', 'border-obsidian-800', 'text-zinc-400');
+
+        selectedPlatform = btn.dataset.platform;
+        if (selectedPlatform === 'reddit') {
+          targetLabel.innerText = 'Destination Subreddit / Target';
+          targetInput.value = 'r/startups';
+          titleContainer.style.display = 'block';
+        } else if (selectedPlatform === 'twitter') {
+          targetLabel.innerText = 'Target Twitter Account / Handle';
+          targetInput.value = '@KineticGrowth';
+          titleContainer.style.display = 'none';
+        } else if (selectedPlatform === 'telegram') {
+          targetLabel.innerText = 'Target Telegram Channel';
+          targetInput.value = '@KineticMarketingVIP';
+          titleContainer.style.display = 'none';
+        } else if (selectedPlatform === 'linkedin') {
+          targetLabel.innerText = 'Company Page or Profile';
+          targetInput.value = 'Kinetic Media Group Inc.';
+          titleContainer.style.display = 'none';
+        }
+      });
+    });
+
+    // Character counter
+    const bodyInput = document.getElementById('postBodyInput');
+    const charCount = document.getElementById('charCount');
+    bodyInput.addEventListener('input', () => {
+      charCount.innerText = `${bodyInput.value.length} chars`;
+    });
+
+    // Form submission & Interactive queue insertion
+    const composerForm = document.getElementById('composerForm');
+    const queueList = document.getElementById('queueList');
+    const publisherLog = document.getElementById('publisherLog');
+    const queueCountElem = document.getElementById('activeQueueCount');
+    const addBtnText = document.getElementById('addBtnText');
+    const addQueueBtn = document.getElementById('addQueueBtn');
+    let queueCount = 48;
+
+    composerForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const target = targetInput.value;
+      const title = document.getElementById('postTitleInput').value || target;
+      const body = bodyInput.value;
+      const time = document.getElementById('scheduleTime').value;
+
+      addQueueBtn.disabled = true;
+      addBtnText.innerText = 'Compiling Spintax & Queuing...';
+
+      setTimeout(() => {
+        queueCount++;
+        queueCountElem.innerText = queueCount;
+
+        // Prepend card to queue
+        const newCard = document.createElement('div');
+        newCard.className = 'amber-card rounded-2xl p-4.5 transition-all duration-200 hover:border-orange-500/40 animate-pulse';
+        newCard.innerHTML = `
+          <div class="flex items-start justify-between gap-3 mb-2.5">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-orange-500/20 border border-orange-500/30 text-orange-400 text-[11px] font-mono font-semibold">${target}</span>
+              <span class="text-xs text-zinc-400 font-mono">• Just Added</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] font-mono text-emerald-300 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded">Scheduled: Today ${time} UTC</span>
+              <button class="text-zinc-500 hover:text-rose-400 text-xs transition-colors">✕</button>
+            </div>
+          </div>
+          <h4 class="font-heading font-semibold text-white text-sm mb-1">${title}</h4>
+          <p class="text-xs text-zinc-400 leading-relaxed font-sans line-clamp-2 mb-3">
+            ${body}
+          </p>
+          <div class="flex items-center justify-between pt-2.5 border-t border-obsidian-800 text-[11px] font-mono text-zinc-400">
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Verified Permutation Ready</span>
+            <span class="text-zinc-500">Auto-Worker: Primed</span>
+          </div>
+        `;
+        queueList.prepend(newCard);
+
+        setTimeout(() => newCard.classList.remove('animate-pulse'), 1000);
+
+        // Add log entry
+        const now = new Date().toTimeString().split(' ')[0];
+        const log = document.createElement('div');
+        log.innerHTML = `<span class="text-zinc-600">${now}</span> <span class="text-orange-400">[QUEUE-ADD]</span> Enqueued post for ${target} at ${time} UTC (Depth: ${queueCount})`;
+        publisherLog.appendChild(log);
+        publisherLog.scrollTop = publisherLog.scrollHeight;
+
+        addBtnText.innerText = '✓ Queued Successfully!';
+        addQueueBtn.classList.replace('bg-orange-600', 'bg-emerald-600');
+
+        setTimeout(() => {
+          addBtnText.innerText = 'Add to Automated Queue';
+          addQueueBtn.classList.replace('bg-emerald-600', 'bg-orange-600');
+          addQueueBtn.disabled = false;
+        }, 1500);
+
+      }, 600);
+    });
+
+    // Clear logs
+    document.getElementById('clearStreamBtn').addEventListener('click', () => {
+      publisherLog.innerHTML = '<div class="text-zinc-500 text-[10px]">● Publisher event log cleared. Listening for cron intervals...</div>';
+    });
+
+    // Chart.js initialization
+    const ctx = document.getElementById('reachChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [
+          {
+            label: 'Reddit Reach',
+            data: [32000, 41000, 39000, 56000, 68000, 84000, 92000],
+            borderColor: '#f97316',
+            backgroundColor: 'rgba(249, 115, 22, 0.08)',
+            fill: true,
+            tension: 0.35,
+            borderWidth: 2,
+            pointRadius: 3,
+            pointBackgroundColor: '#f97316',
+          },
+          {
+            label: 'X / Twitter Impressions',
+            data: [21000, 29000, 34000, 42000, 48000, 53000, 61000],
+            borderColor: '#38bdf8',
+            backgroundColor: 'transparent',
+            tension: 0.35,
+            borderWidth: 2,
+            pointRadius: 3,
+            pointBackgroundColor: '#38bdf8',
+          },
+          {
+            label: 'Telegram Channel Reads',
+            data: [14000, 16500, 18200, 19800, 22400, 24100, 27500],
+            borderColor: '#818cf8',
+            backgroundColor: 'transparent',
+            tension: 0.35,
+            borderWidth: 2,
+            pointRadius: 3,
+            pointBackgroundColor: '#818cf8',
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: '#71717a', font: { family: 'JetBrains Mono', size: 10 } }
+          },
+          y: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { 
+              color: '#71717a', 
+              font: { family: 'JetBrains Mono', size: 10 },
+              callback: val => (val / 1000) + 'K'
+            }
+          }
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>
